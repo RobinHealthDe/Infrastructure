@@ -1,0 +1,10 @@
+<VirtualHost *:80>
+		ServerName 52.28.84.128
+		DocumentRoot /var/www/wordpress
+		DirectoryIndex index.php
+		<Directory /var/www/wordpress/>
+				AllowOverride All
+				Order Deny,Allow
+				Allow from all
+		</Directory>
+</VirtualHost>

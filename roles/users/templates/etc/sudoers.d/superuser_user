@@ -1,0 +1,1 @@
+{{ users.superuser }} ALL=NOPASSWD: ALL

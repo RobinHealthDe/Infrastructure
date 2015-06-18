@@ -1,0 +1,96 @@
+---
+- name: update apt-get
+  command: apt-get update
+
+- name: install basic software
+  apt: name={{ item }} state=latest
+  with_items:
+    - wget
+    - curl
+    - libcurl3
+    - libcurl3-dev
+    - php5
+    - php5-curl
+    - php5-mcrypt
+
+- name: create /var/www dir
+  file: path=/var/www state=directory owner=www-data group=www-data
+
+- name: Download wordpress
+  command: wget http://wordpress.org/latest.tar.gz
+
+- name: Unpack wordpress
+  command: tar -xzvf latest.tar.gz -C /var/www
+
+- name: Change ownership of wordpress subfolder recursively
+  file: path=/var/www/wordpress owner=www-data group=www-data recurse=yes
+
+- name: install mysql server package and apache / php packages
+  apt: name={{ item }} state=latest
+  with_items:
+    - python-mysqldb
+    - mysql-server
+    - php5
+    - libapache2-mod-php5
+    - libapache2-mod-auth-mysql
+    - php5-mysql
+
+- name: remove the MySQL test database
+  action: mysql_db db=test state=absent
+
+- name: Copy wp-config file
+  copy: src=var/www/wordpress/wp-config.php dest=/var/www/wordpress/wp-config.php owner=www-data group=www-data mode=0644
+
+- name: Restart mysql
+  action: service name=mysql state=restarted
+
+- name: Copy template file
+  copy: src=etc/apache2/sites-available/wordpress dest=/etc/apache2/sites-available/wordpress.conf owner=root group=root mode=0644
+
+- name: Enable site through apache
+  command: a2ensite wordpress
+
+- name: Disable default apache site
+  command: a2dissite 000-default
+
+- name: create /etc/php5/mods-available/ dir
+  file: path=/etc/php5/mods-available state=directory owner=root group=root mode=0755
+
+- name: Do additional setup for Mcrypt library - register mcrypt mod with php
+  command: php5enmod mcrypt
+
+- name: Restart apache
+  action: service name=apache2 state=restarted
+
+- name: Copy dante theme
+  copy: src=var/www/wordpress/wp-content/themes/dante/ dest=/var/www/wordpress/wp-content/themes/dante/
+
+- name: Copy php.ini
+  copy: src=var/www/wordpress/php.ini dest=/var/www/wordpress/php.ini mode=0644
+
+- name: change ownership of wordpress folder
+  file: path=/var/www/wordpress/wp-content mode=0775 recurse=yes
+
+- name: Create wordpress group
+  group: name=wordpress state=present
+
+- name: Add superuser to group wordpress
+  user: name=superuser shell=/bin/bash groups=wordpress append=yes
+
+- name: Add superuser to group www-data
+  user: name=superuser shell=/bin/bash groups=www-data append=yes
+
+- name: Add www-data user to group wordpress
+  user: name=www-data shell=/bin/bash groups=wordpress append=yes
+
+- name: Change ownership of plugins subfolder recursively
+  file: path=/var/www/wordpress/wp-content/plugins owner=superuser group=wordpress mode=0775 recurse=yes
+
+- name: Change ownership of themes subfolder recursively
+  file: path=/var/www/wordpress/wp-content/themes owner=superuser group=www-data mode=0775 recurse=yes
+
+- name: Change permissions of .htaccess for permalink settings
+  file: path=/var/www/wordpress/.htaccess mode=0664
+
+- name: Restart apache
+  action: service name=apache2 state=restarted

@@ -1,0 +1,10 @@
+[all-in-one]
+  52.28.63.156
+  52.28.84.128
+  zahnarzt-kosten.info
+  127.0.0.1 ansible_connection=local
+[wordpress-standalone]
+  52.28.63.156
+  52.28.84.128
+  zahnarzt-kosten.info
+  127.0.0.1 ansible_connection=local

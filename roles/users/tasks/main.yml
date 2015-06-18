@@ -1,0 +1,24 @@
+# TO COME
+
+# ---
+# - name: Create superuser
+#   user: name={{ users.superuser }} state=present
+
+# - name: Create adminuser
+#   user: name={{ users.adminuser }} state=present
+
+# - name: Set up our authorized_keys for user {{ users.superuser }}
+#   authorized_key: user={{ users.superuser }} key="{{ item }}"
+#   with_file:
+#     - public_keys/zk_dentolo.pub
+
+# - name: Set up our authorized_keys for user {{ users.adminuser }}
+#   authorized_key: user={{ users.adminuser }} key="{{ item }}"
+#   with_file:
+#     - public_keys/zk_admin.pub
+
+# - name: Add to {{ users.superuser }} sudoers file
+#   template: src=etc/sudoers.d/superuser_user dest=/etc/sudoers.d/{{ users.superuser }} owner=root group=root mode=0440
+
+# - name: Add to {{ users.adminuser }} sudoers file
+#   template: src=etc/sudoers.d/adminuser_user dest=/etc/sudoers.d/{{ users.adminuser }} owner=root group=root mode=0440
